@@ -1,6 +1,6 @@
 ## Python Hashing Tools
 
-A from-scratch experiment in hashing and cracking passwords using various encryption schemes and attack vectors in Python.
+Hashing and cracking passwords using different hash functions and attack vectors in Python.
 
 ### Support
 
