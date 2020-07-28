@@ -1,6 +1,6 @@
 ## Python Hashing Tools
 
-Hashing and cracking passwords using different hash functions and attack vectors in Python.
+A series of Python functions that perform simple hashing and attacking of passwords using various methods.
 
 ### Support
 
