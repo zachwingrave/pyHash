@@ -1,6 +1,6 @@
 [![Run on Repl.it](https://repl.it/badge/github/zachwingrave/pyHash)](https://repl.it/github/zachwingrave/pyHash)
 
-## PyHash
+# pyHash
 
 A series of Python functions that perform simple hashing and attacking of passwords using various methods.
 
