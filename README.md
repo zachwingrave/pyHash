@@ -1,6 +1,6 @@
-[![Run on Repl.it](https://repl.it/badge/github/zachwingrave/python-hashing-tools)](https://repl.it/github/zachwingrave/python-hashing-tools)
+[![Run on Repl.it](https://repl.it/badge/github/zachwingrave/pyHash)](https://repl.it/github/zachwingrave/pyHash)
 
-## Python Hashing Tools
+## PyHash
 
 A series of Python functions that perform simple hashing and attacking of passwords using various methods.
 
