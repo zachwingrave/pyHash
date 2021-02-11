@@ -1,9 +1,9 @@
 from string import ascii_letters, punctuation, digits
-import itertools, tqdm, time, hashlib
+import itertools, tqdm, time, hashlib, os
 
+WORDLIST = os.path.join("rockyou.txt")
 ALPHABET = ascii_letters + punctuation + digits # try changing this, what happens?
 FUNCTIONS = ("md5", "sha1", "sha224", "sha256", "sha384", "sha512")
-
 
 def main():
   password = input("Enter password: ").encode("utf-8")
@@ -14,22 +14,33 @@ def main():
   else:
     function = getattr(hashlib, function)
 
+  print("1. Brute Force Search")
+  print("2. Dictionary Attack (rockyou.txt)")
+
+  mode = int(input("Choose method of attack: ").strip())
   password = function(password).hexdigest() # password is hashed here
-  results = attack(password, function)
+
+  if mode == 1:
+    results = brute_force_attack(password, function)
+  elif mode == 2:
+    results = dictionary_attack(WORDLIST, password, function)
+  else:
+    raise Exception("Unsupported attack method.")
 
   if results["cracked"]:
-    print("Cracked!", end=" ") # printing our results
+    print("Cracked! Password is: \'", results["password"], "\'", sep="") # printing our results
   else:
     print("Password not found.", end=" ")
 
   print("Took", results["attempts"], "attempts and", results["duration"], "seconds to compute.")
 
 
-def attack(password, function):   # where the magic happens!
+def brute_force_attack(password, function):   # where the magic happens!
   print("Target Hash:", password)
   start_time = time.time()
 
   results = {
+    "password": None,
     "cracked": False,
     "attempts": 0,
     "duration": 0,
@@ -43,11 +54,11 @@ def attack(password, function):   # where the magic happens!
 
     for word in tqdm.tqdm(words): # this will happen for every single combination
       results["attempts"] += 1
-      word = "".join(word).encode("utf-8")
-      guess = function(word).hexdigest()
+      guess = function(word.encode("utf-8")).hexdigest()
 
       if guess == password:
         end_time = round(time.time() - start_time, 2)
+        results["password"] = word
         results["duration"] = end_time
         results["cracked"] = True   # gotcha!
         return results
@@ -58,6 +69,34 @@ def attack(password, function):   # where the magic happens!
   results["duration"] = end_time
   return results
 
+def dictionary_attack(dictionary, password, function):
+  print("Target Hash:", password)
+  start_time = time.time()
+
+  results = {
+    "password": None,
+    "cracked": False,
+    "attempts": 0,
+    "duration": 0,
+  }
+
+  with open(dictionary, "r", errors="ignore") as file:
+    wordlist = file.read().split("\n")
+
+  for word in tqdm.tqdm(wordlist):
+    results["attempts"] += 1
+    guess = function(word.encode("utf-8")).hexdigest()
+
+    if guess == password:
+      end_time = round(time.time() - start_time, 2)
+      results["password"] = word
+      results["duration"] = end_time
+      results["cracked"] = True   # gotcha!
+      return results
+
+  end_time = round(time.time() - start_time, 2)
+  results["duration"] = end_time
+  return results
 
 if __name__ == "__main__":
   main() # run the program
