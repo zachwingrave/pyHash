@@ -1,7 +1,6 @@
 from string import ascii_letters, punctuation, digits
 import itertools, tqdm, time, hashlib, os
 
-WORDLIST = os.path.join("rockyou.txt")
 ALPHABET = ascii_letters + punctuation + digits # try changing this, what happens?
 FUNCTIONS = ("md5", "sha1", "sha224", "sha256", "sha384", "sha512")
 
@@ -23,7 +22,7 @@ def main():
   if mode == 1:
     results = brute_force_attack(password, function)
   elif mode == 2:
-    results = dictionary_attack(WORDLIST, password, function)
+    results = dictionary_attack(password, function)
   else:
     raise Exception("Unsupported attack method.")
 
@@ -33,7 +32,6 @@ def main():
     print("Password not found.", end=" ")
 
   print("Took", results["attempts"], "attempts and", results["duration"], "seconds to compute.")
-
 
 def brute_force_attack(password, function):   # where the magic happens!
   print("Target Hash:", password)
@@ -54,7 +52,7 @@ def brute_force_attack(password, function):   # where the magic happens!
 
     for word in tqdm.tqdm(words): # this will happen for every single combination
       results["attempts"] += 1
-      guess = function(word.encode("utf-8")).hexdigest()
+      guess = function("".join(word).encode("utf-8")).hexdigest()
 
       if guess == password:
         end_time = round(time.time() - start_time, 2)
@@ -69,7 +67,7 @@ def brute_force_attack(password, function):   # where the magic happens!
   results["duration"] = end_time
   return results
 
-def dictionary_attack(dictionary, password, function):
+def dictionary_attack(password, function, dictionary="rockyou.txt"):
   print("Target Hash:", password)
   start_time = time.time()
 
