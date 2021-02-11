@@ -2,7 +2,7 @@
 
 # pyHash
 
-A series of Python functions that perform simple hashing and attacking of passwords using various methods.
+Simple hashing and attacking of passwords using various methods.
 
 ### Attributions
 
