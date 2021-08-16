@@ -25,7 +25,7 @@ def brute_force_attack(password, function):   # where the magic happens!
 
   # this is where the hard work happens
 
-  for length in range(0, 16):
+  for length in range(1, 16):
     print("Hashing passwords of length:", length)
     wordlist = itertools.product(ALPHABET, repeat=length)
 
