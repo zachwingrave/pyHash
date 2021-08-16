@@ -12,7 +12,6 @@ FUNCTIONS = ("md5", "sha1", "sha224", "sha256", "sha384", "sha512")
 
 def brute_force_attack(password, function):   # where the magic happens!
   print("Target Hash:", password)
-  start_time = time.time()
 
   results = {
     "password": None,
@@ -20,6 +19,8 @@ def brute_force_attack(password, function):   # where the magic happens!
     "attempts": 0,
     "duration": 0,
   }
+
+  start_time = time.time()
 
   # this is where the hard work happens
 
@@ -46,7 +47,6 @@ def brute_force_attack(password, function):   # where the magic happens!
 
 def dictionary_attack(password, function, dictionary="rockyou.txt"):
   print("Target Hash:", password)
-  start_time = time.time()
 
   results = {
     "password": None,
@@ -57,6 +57,8 @@ def dictionary_attack(password, function, dictionary="rockyou.txt"):
 
   with open(dictionary, "r", errors="ignore") as file:
     wordlist = file.read().split("\n")
+
+  start_time = time.time()
 
   for word in tqdm.tqdm(wordlist):
     results["attempts"] += 1
