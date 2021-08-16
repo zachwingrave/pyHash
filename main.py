@@ -18,6 +18,7 @@ def brute_force_attack(password, function):   # where the magic happens!
     "cracked": False,
     "attempts": 0,
     "duration": 0,
+    "fileLoadTime": None,
   }
 
   start_time = time.time()
@@ -33,9 +34,8 @@ def brute_force_attack(password, function):   # where the magic happens!
       guess = function("".join(word).encode("utf-8")).hexdigest()
 
       if guess == password:
-        end_time = round(time.time() - start_time, 2)
+        results["duration"] = round(time.time() - start_time, 2)
         results["password"] = "".join(word)
-        results["duration"] = end_time
         results["cracked"] = True   # gotcha!
         return results
 
@@ -53,10 +53,13 @@ def dictionary_attack(password, function, dictionary="rockyou.txt"):
     "cracked": False,
     "attempts": 0,
     "duration": 0,
+    "fileLoadTime": None
   }
 
+  file_load_start = time.time()
   with open(dictionary, "r", errors="ignore") as file:
     wordlist = file.read().split("\n")
+  results["fileLoadTime"] = round(time.time() - file_load_start, 2)
 
   start_time = time.time()
 
@@ -65,14 +68,12 @@ def dictionary_attack(password, function, dictionary="rockyou.txt"):
     guess = function(word.encode("utf-8")).hexdigest()
 
     if guess == password:
-      end_time = round(time.time() - start_time, 2)
+      results["duration"] = round(time.time() - start_time, 2)
       results["password"] = "".join(word)
-      results["duration"] = end_time
       results["cracked"] = True   # gotcha!
       return results
 
-  end_time = round(time.time() - start_time, 2)
-  results["duration"] = end_time
+  results["duration"] = round(time.time() - start_time, 2)
   return results
 
 def main():
