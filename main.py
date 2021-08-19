@@ -8,17 +8,17 @@ import time
 import tqdm
 
 ALPHABET = ascii_letters + digits + punctuation # try changing this, what happens?
-FUNCTIONS = ("md5", "sha1", "sha224", "sha256", "sha384", "sha512")
+FUNCTIONS = ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512')
 
-def brute_force_attack(password, function):   # where the magic happens!
-  print("Target Hash:", password)
+def brute_force_attack(password, alphabet=ALPHABET, function=getattr(hashlib, 'md5')):   # where the magic happens!
+  print('Target Hash:', password)
 
   results = {
-    "password": None,
-    "cracked": False,
-    "attempts": 0,
-    "duration": 0,
-    "fileLoadTime": None,
+    'password': None,
+    'cracked': False,
+    'attempts': 0,
+    'duration': 0,
+    'fileLoadTime': None,
   }
 
   start_time = time.time()
@@ -26,87 +26,106 @@ def brute_force_attack(password, function):   # where the magic happens!
   # this is where the hard work happens
 
   for length in range(0, 16):
-    print("Hashing passwords of length:", length)
-    wordlist = itertools.product(ALPHABET, repeat=length)
+    print('Hashing passwords of length:', length)
+    wordlist = itertools.product(alphabet, repeat=length)
 
     for word in tqdm.tqdm(wordlist): # this will happen for every single combination
-      results["attempts"] += 1
-      guess = function("".join(word).encode("utf-8")).hexdigest()
+      results['attempts'] += 1
+      guess = function(''.join(word).encode('utf-8')).hexdigest()
 
       if guess == password:
-        results["duration"] = round(time.time() - start_time, 2)
-        results["password"] = "".join(word)
-        results["cracked"] = True   # gotcha!
+        results['duration'] = round(time.time() - start_time, 2)
+        results['password'] = ''.join(word)
+        results['cracked'] = True   # gotcha!
         return results
 
   # and the hard work is done!
 
   end_time = round(time.time() - start_time, 2)
-  results["duration"] = end_time
+  results['duration'] = end_time
   return results
 
-def dictionary_attack(password, function, dictionary="rockyou.txt"):
-  print("Target Hash:", password)
+def dictionary_attack(password, dictionary='rockyou.txt', function=getattr(hashlib, 'md5')):
+  print('Target Hash:', password)
 
   results = {
-    "password": None,
-    "cracked": False,
-    "attempts": 0,
-    "duration": 0,
-    "fileLoadTime": None
+    'password': None,
+    'cracked': False,
+    'attempts': 0,
+    'duration': 0,
+    'fileLoadTime': None
   }
 
   file_load_start = time.time()
-  with open(dictionary, "r", errors="ignore") as file:
-    wordlist = file.read().split("\n")
-  results["fileLoadTime"] = round(time.time() - file_load_start, 2)
+  with open(dictionary, 'r', errors='ignore') as file:
+    wordlist = file.read().split('\n')
+  results['fileLoadTime'] = round(time.time() - file_load_start, 2)
 
   start_time = time.time()
 
   for word in tqdm.tqdm(wordlist):
-    results["attempts"] += 1
-    guess = function(word.encode("utf-8")).hexdigest()
+    results['attempts'] += 1
+    guess = function(word.encode('utf-8')).hexdigest()
 
     if guess == password:
-      results["duration"] = round(time.time() - start_time, 2)
-      results["password"] = "".join(word)
-      results["cracked"] = True   # gotcha!
+      results['duration'] = round(time.time() - start_time, 2)
+      results['password'] = ''.join(word)
+      results['cracked'] = True   # gotcha!
       return results
 
-  results["duration"] = round(time.time() - start_time, 2)
+  results['duration'] = round(time.time() - start_time, 2)
   return results
 
-def main():
-  password = input("Enter password: ").encode("utf-8")
-  function = input("Enter hash function: ").strip().lower()
-
-  if function not in FUNCTIONS:
-    raise Exception("Unsupported hash function.") # check the FUNCTIONS list
+def power(n, m):
+  ''' Return base 'n' to power of exponent 'm' '''
+  if m == 0:
+    return 1
   else:
-    function = getattr(hashlib, function)
+    return n*power(n, m-1)
 
-  print("1. Brute Force Search")
-  print("2. Dictionary Attack")
+def find_target_index(password, alphabet=ALPHABET):
+  current_power = len(password) - 1
+  base = len(alphabet)
+  pos = 1 # first position is empty string
+  for char in password:
+    char_pos = alphabet.find(char) + 1
+    pos += char_pos * power(base, current_power)
+    current_power -= 1
+  return pos
 
-  mode = int(input("Choose method of attack: ").strip())
-  password = function(password).hexdigest() # password is hashed here
+def main():
+  password = input('Enter password: ').encode('utf-8')
+  hash_function = input('Enter hash function: ').strip().lower()
+
+  if hash_function not in FUNCTIONS:
+    raise Exception('Unsupported hash function.') # check the FUNCTIONS list
+  else:
+    hash_function = getattr(hashlib, hash_function)
+
+  print('1. Brute Force Search')
+  print('2. Dictionary Attack')
+
+  mode = int(input('Choose method of attack: ').strip())
+  digest = hash_function(password).hexdigest() # password is hashed here
 
   if mode == 1:
-    results = brute_force_attack(password, function)
+    # prediction = find_target_index(password.decode('utf-8'))
+    # print('Predicted position: ', prediction)
+    results = brute_force_attack(password=digest, function=hash_function)
   elif mode == 2:
-    dictionary = input("Dictionary file (rockyou.txt): ").strip()
-    if dictionary == "":
-      dictionary = "rockyou.txt"
-    results = dictionary_attack(password, function, dictionary)
+    dictionary = input('Dictionary file (rockyou.txt): ').strip()
+    if dictionary == '':
+      dictionary = 'rockyou.txt'
+    results = dictionary_attack(password=digest, dictionary=dictionary, function=hash_function)
   else:
-    raise Exception("Unsupported attack method.")
+    raise Exception('Unsupported attack method.')
 
-  if results["cracked"]:
-    print("Cracked! Password is: \'", results["password"], "\'", sep="") # printing our results
+  if results['cracked']:
+    print('Cracked! Password is: \'', results['password'], '\'', sep='') # printing our results
   else:
-    print("Password not found.", end=" ")
+    print('Password not found.', end=' ')
 
-  print("Took", results["attempts"], "attempts and", results["duration"], "seconds to compute.")
+  print('Took', results['attempts'], 'attempts and', results['duration'], 'seconds to compute.')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   main() # run the program
