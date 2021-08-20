@@ -10,7 +10,7 @@ import tqdm
 ALPHABET = ascii_letters + digits + punctuation # try changing this, what happens?
 FUNCTIONS = ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512')
 
-def brute_force_attack(password, alphabet=ALPHABET, function=getattr(hashlib, 'md5')):   # where the magic happens!
+def brute_force_attack(password, alphabet=ALPHABET, function=getattr(hashlib, 'md5'), empty=True):   # where the magic happens!
   print('Target Hash:', password)
 
   results = {
@@ -21,11 +21,15 @@ def brute_force_attack(password, alphabet=ALPHABET, function=getattr(hashlib, 'm
     'fileLoadTime': None,
   }
 
+  range_start = 0 # test empty string by default
+  if empty == False:
+    range_start = 1
+
   start_time = time.time()
 
   # this is where the hard work happens
 
-  for length in range(0, 16):
+  for length in range(range_start, 16):
     print('Hashing passwords of length:', length)
     wordlist = itertools.product(alphabet, repeat=length)
 
@@ -83,15 +87,18 @@ def power(n, m):
   else:
     return n*power(n, m-1)
 
-def find_target_index(password, alphabet=ALPHABET):
+def find_target_index(password, alphabet=ALPHABET, empty=True):
   current_power = len(password) - 1
   base = len(alphabet)
-  pos = 1 # first position is empty string
+  pos = 0
   for char in password:
     char_pos = alphabet.find(char) + 1
     pos += char_pos * power(base, current_power)
     current_power -= 1
-  return pos
+  if empty == True:
+    return pos + 1 # empty string takes first position
+  else:
+    return pos
 
 def main():
   password = input('Enter password: ').encode('utf-8')
