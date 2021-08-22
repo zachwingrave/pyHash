@@ -134,5 +134,8 @@ def main():
 
   print('Took', results['attempts'], 'attempts and', results['duration'], 'seconds to compute.')
 
+  if results['fileLoadTime'] != None:
+    print('Dictionary file load time:', results['fileLoadTime'], 'seconds to load.')
+
 if __name__ == '__main__':
   main() # run the program
