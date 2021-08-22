@@ -102,18 +102,26 @@ def find_target_index(password, alphabet=ALPHABET, empty=True):
 
 def main():
   password = input('Enter password: ').encode('utf-8')
-  hash_function = input('Enter hash function: ').strip().lower()
+  hash_function = input('Enter hash function (md5): ').strip().lower()
 
   if hash_function not in FUNCTIONS:
-    raise Exception('Unsupported hash function.') # check the FUNCTIONS list
+    if hash_function == '':
+      hash_function = getattr(hashlib, 'md5')
+    else:
+      raise Exception('Unsupported hash function.') # check the FUNCTIONS list
   else:
     hash_function = getattr(hashlib, hash_function)
 
   print('1. Brute Force Search')
   print('2. Dictionary Attack')
 
-  mode = int(input('Choose method of attack: ').strip())
+  mode = input('Choose method of attack (brute force): ').strip()
   digest = hash_function(password).hexdigest() # password is hashed here
+
+  if mode == '':
+    mode = 1
+  else:
+    mode = int(mode)
 
   if mode == 1:
     # prediction = find_target_index(password.decode('utf-8'))
